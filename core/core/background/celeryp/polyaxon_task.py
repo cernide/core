@@ -5,7 +5,7 @@ from celery import Task
 _logger = logging.getLogger("core.tasks")
 
 
-class HauptTask(Task):
+class CoreTask(Task):
     """Base custom celery task with basic logging."""
 
     abstract = True

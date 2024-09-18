@@ -12,9 +12,9 @@ from core.common.options.registry.core import SCHEDULER_ENABLED
 
 if settings.SCHEDULER_ENABLED:
     from core.background.celeryp.app import app
-    from core.background.celeryp.polyaxon_task import HauptTask
+    from core.background.celeryp.polyaxon_task import CoreTask
 
-    app.Task = HauptTask  # Custom base class for logging
+    app.Task = CoreTask  # Custom base class for logging
 
 
 def send(
@@ -30,7 +30,8 @@ def send(
         tasks_execution = import_string(
             f"{module}.background.celeryp.executions.TasksExecutions"
         )
-        tasks_execution.run(task=task_name, kwargs=kwargs, eager_kwargs=eager_kwargs)
+        tasks_execution.run(task=task_name, kwargs=kwargs,
+                            eager_kwargs=eager_kwargs)
         return
     options["ignore_result"] = options.get("ignore_result", True)
     return transaction.on_commit(
