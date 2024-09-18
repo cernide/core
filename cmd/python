@@ -2,10 +2,10 @@
 
 if [ $? -eq 0 ]; then
     if [ "$1" = "local-sqlite" ]; then
-        cd haupt; DJANGO_SETTINGS_MODULE="haupt.polyconf.settings" python ${@:2}
+        cd core; DJANGO_SETTINGS_MODULE="core.polyconf.settings" python ${@:2}
     elif [ "$1" = "container-sqlite" ]; then
-        docker compose -f docker-compose.test.sqlite.yml run -w /haupt/haupt api python ${@:2}
+        docker compose -f docker-compose.test.sqlite.yml run -w /core/core api python ${@:2}
     elif [ "$1" = "container-pgsql" ]; then
-        docker compose -f docker-compose.test.pgsql.yml run -w /haupt/haupt api python ${@:2}
+        docker compose -f docker-compose.test.pgsql.yml run -w /core/core api python ${@:2}
     fi
 fi

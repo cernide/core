@@ -1,5 +1,5 @@
 #!/bin/bash
 
 if [ $? -eq 0 ]; then
-    cd haupt; isort . && black . --exclude vendor/
+    cd core; isort . && black . --exclude vendor/
 fi

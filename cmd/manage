@@ -2,10 +2,10 @@
 
 if [ $? -eq 0 ]; then
     if [ "$1" = "local-sqlite" ]; then
-        cmd/python local-sqlite haupt/manage.py ${@:2}
+        cmd/python local-sqlite core/manage.py ${@:2}
     elif [ "$1" = "container-sqlite" ]; then
-        cmd/python docker-sqlite haupt/manage.py ${@:2}
+        cmd/python docker-sqlite core/manage.py ${@:2}
     elif [ "$1" = "container-pgsql" ]; then
-        cmd/python container-pgsql haupt/manage.py ${@:2}
+        cmd/python container-pgsql core/manage.py ${@:2}
     fi
 fi

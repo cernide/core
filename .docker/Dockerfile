@@ -10,13 +10,13 @@ RUN apt-get -y update && \
     apt-get -y clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY /haupt/requirements /requirements/
+COPY /core/requirements /requirements/
 RUN pip3 install --no-cache-dir -r /requirements/requirements.txt
 RUN pip3 install --no-cache-dir -r /requirements/platform.txt
 RUN pip3 install --no-cache-dir -r /requirements/streams.txt
 RUN pip3 install --no-cache-dir -r /requirements/prod.txt
 
-ENV PYTHONPATH="${PYTHONPATH}:/haupt/haupt"
+ENV PYTHONPATH="${PYTHONPATH}:/core/core"
 
-VOLUME /haupt
-WORKDIR /haupt
+VOLUME /core
+WORKDIR /core

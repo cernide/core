@@ -1,46 +1,45 @@
 version: "3.8"
 
 x-defaults: &defaults
-  env_file:
-  - .docker/base.env
-  - .docker/config.env
+    env_file:
+        - .docker/base.env
+        - .docker/config.env
 
 services:
-  postgres:
-    image: postgres:14.5-alpine
-    environment:
-      POSTGRES_USER: "haupt"
-      POSTGRES_PASSWORD: "haupt"
-    networks:
-      - haupt
+    postgres:
+        image: postgres:14.5-alpine
+        environment:
+            POSTGRES_USER: "core"
+            POSTGRES_PASSWORD: "core"
+        networks:
+            - core
 
-  redis:
-    image: redis:7.0.5-alpine
-    networks:
-      - haupt
+    redis:
+        image: redis:7.0.5-alpine
+        networks:
+            - core
 
-  api:
-    <<: *defaults
-    build:
-      context: .
-      dockerfile: ./.docker/Dockerfile
-    networks:
-      - haupt
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - ./haupt:/haupt/haupt
-      - ./public:/haupt/public
-      - ./pydist:/haupt/pydist
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: "postgres://haupt:haupt@postgres:5432/haupt"
-      POLYAXON_DB_USER: "haupt"
-      POLYAXON_DB_PASSWORD: "haupt"
-      POLYAXON_DB_PORT: "5432"
+    api:
+        <<: *defaults
+        build:
+            context: .
+            dockerfile: ./.docker/Dockerfile
+        networks:
+            - core
+        depends_on:
+            - postgres
+            - redis
+        volumes:
+            - ./core:/core/core
+            - ./public:/core/public
+            - ./pydist:/core/pydist
+        ports:
+            - "8000:8000"
+        environment:
+            DATABASE_URL: "postgres://core:core@postgres:5432/core"
+            POLYAXON_DB_USER: "core"
+            POLYAXON_DB_PASSWORD: "core"
+            POLYAXON_DB_PORT: "5432"
 
 networks:
-  haupt:
-
+    core:
