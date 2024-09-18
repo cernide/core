@@ -25,7 +25,7 @@ from polyaxon._k8s.logging.async_monitor import (
 )
 from polyaxon._k8s.manager.async_manager import AsyncK8sManager
 from polyaxon._services import PolyaxonServices
-from traceml.logging import V1Logs
+from tracer.logging import V1Logs
 
 logger = logging.getLogger("core.streams.agents")
 
@@ -68,7 +68,8 @@ async def collect_agent_data(
             last_file = 0
             for c_logs in V1Logs.chunk_logs(logs):
                 last_file += 1
-                subpath = ".agents/{}/logs/{}/{}".format(agent_uuid, service, last_file)
+                subpath = ".agents/{}/logs/{}/{}".format(
+                    agent_uuid, service, last_file)
                 await upload_data(
                     fs=fs, store_path=store_path, subpath=subpath, data=c_logs.to_json()
                 )

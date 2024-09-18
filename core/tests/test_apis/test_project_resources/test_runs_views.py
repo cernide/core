@@ -39,7 +39,7 @@ from polyaxon.schemas import (
     V1Statuses,
 )
 from tests.base.case import BaseTest
-from traceml.artifacts import V1ArtifactKind
+from tracer.artifacts import V1ArtifactKind
 
 
 @pytest.mark.projects_resources_mark
@@ -54,10 +54,12 @@ class TestProjectRunsInvalidateViewV1(BaseTest):
             self.factory_class(project=self.project, state=self.project.uuid)
             for _ in range(3)
         ]
-        self.objects.append(self.factory_class(project=self.project, user=self.user))
+        self.objects.append(self.factory_class(
+            project=self.project, user=self.user))
 
         project = ProjectFactory()
-        self.another_object = self.factory_class(project=project, user=self.user)
+        self.another_object = self.factory_class(
+            project=project, user=self.user)
         self.url = "/{}/{}/{}/runs/invalidate/".format(
             API_V1, self.user.username, self.project.name
         )
@@ -116,7 +118,8 @@ class TestProjectRunsBookmarkViewV1(BaseTest):
                 self.objects[2].uuid.hex,
             ]
         }
-        assert list(Bookmark.objects.values_list("enabled", flat=True)) == [True, False]
+        assert list(Bookmark.objects.values_list(
+            "enabled", flat=True)) == [True, False]
         resp = self.client.post(self.url, data)
         assert resp.status_code == status.HTTP_200_OK
         assert list(Bookmark.objects.values_list("enabled", flat=True)) == [
@@ -150,8 +153,10 @@ class TestProjectRunsTagViewV1(BaseTest):
                 tags=["new", "tag21", "tag22"],
             )
         )
-        self.objects.append(self.factory_class(project=self.project, user=self.user))
-        self.objects.append(self.factory_class(project=self.project, user=self.user))
+        self.objects.append(self.factory_class(
+            project=self.project, user=self.user))
+        self.objects.append(self.factory_class(
+            project=self.project, user=self.user))
         self.url = "/{}/{}/{}/runs/tag/".format(
             API_V1, self.user.username, self.project.name
         )
@@ -589,7 +594,8 @@ class TestProjectRunsArtifactsViewV1(BaseTest):
         assert resp.data["next"] is None
         assert resp.data["count"] == 4
 
-        resp = self.client.get(self.url + "?query=run:{}".format(self.objects[1].uuid))
+        resp = self.client.get(
+            self.url + "?query=run:{}".format(self.objects[1].uuid))
         assert resp.status_code == status.HTTP_200_OK
 
         assert resp.data["next"] is None
@@ -608,7 +614,8 @@ class TestProjectRunsArtifactsViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.query.count()
-        self._assert_equal(data, self.serializer_class(self.query, many=True).data)
+        self._assert_equal(data, self.serializer_class(
+            self.query, many=True).data)
 
     def test_get(self):
         resp = self.client.get(self.url + "?mode=distinct")
@@ -618,7 +625,8 @@ class TestProjectRunsArtifactsViewV1(BaseTest):
         assert resp.data["count"] == 3
 
         resp = self.client.get(
-            self.url + "?mode=distinct&query=run:{}".format(self.objects[1].uuid)
+            self.url +
+            "?mode=distinct&query=run:{}".format(self.objects[1].uuid)
         )
         assert resp.status_code == status.HTTP_200_OK
 
@@ -641,13 +649,15 @@ class TestProjectRunsArtifactsViewV1(BaseTest):
             assert len(data) == self.query.count() - 1
             assert len(data) == self.query_distinct.count() - 1
             self._assert_equal(
-                data, self.light_serializer_class(self.query_distinct, many=True).data
+                data, self.light_serializer_class(
+                    self.query_distinct, many=True).data
             )
         else:
             assert len(data) == self.query.count() - 1
             assert len(data) == self.query_distinct.count()
             assert (
-                data == self.light_serializer_class(self.query_distinct, many=True).data
+                data == self.light_serializer_class(
+                    self.query_distinct, many=True).data
             )
 
     @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -670,14 +680,16 @@ class TestProjectRunsArtifactsViewV1(BaseTest):
 
         # Kind
         resp = self.client.get(
-            self.url + f"?mode=distinct&query=kind:{V1ArtifactKind.METRIC.value}"
+            self.url +
+            f"?mode=distinct&query=kind:{V1ArtifactKind.METRIC.value}"
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 3
 
         resp = self.client.get(
-            self.url + f"?mode=distinct&query=kind:{V1ArtifactKind.HISTOGRAM.value}"
+            self.url +
+            f"?mode=distinct&query=kind:{V1ArtifactKind.HISTOGRAM.value}"
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -717,7 +729,8 @@ class TestProjectRunsListViewV1(BaseTest):
         )
         # one object that does not belong to the filter
         self.other_project = ProjectFactory()
-        self.other_url = "/{}/polyaxon/{}/runs/".format(API_V1, self.other_project.name)
+        self.other_url = "/{}/polyaxon/{}/runs/".format(
+            API_V1, self.other_project.name)
         self.other_object = self.factory_class(
             project=self.other_project,
         )
@@ -751,7 +764,8 @@ class TestProjectRunsListViewV1(BaseTest):
         resp = self.client.get(self.url)
         assert resp.status_code == status.HTTP_200_OK
         assert (
-            len([1 for obj in resp.data["results"] if obj["bookmarked"] is True]) == 1
+            len([1 for obj in resp.data["results"]
+                if obj["bookmarked"] is True]) == 1
         )
 
     def test_pagination(self):
@@ -765,7 +779,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == limit
-        assert data == self.serializer_class(self.queryset[:limit], many=True).data
+        assert data == self.serializer_class(
+            self.queryset[:limit], many=True).data
 
         resp = self.client.get(next_page)
         assert resp.status_code == status.HTTP_200_OK
@@ -774,7 +789,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == 1
-        assert data == self.serializer_class(self.queryset[limit:], many=True).data
+        assert data == self.serializer_class(
+            self.queryset[limit:], many=True).data
 
     def test_get_order(self):
         resp = self.client.get(self.url + "?sort=created_at,updated_at")
@@ -812,7 +828,8 @@ class TestProjectRunsListViewV1(BaseTest):
         queryset = self.queryset.order_by("created_at", "updated_at")
         limit = self.num_objects - 1
         resp = self.client.get(
-            "{}?limit={}&{}".format(self.url, limit, "sort=created_at,updated_at")
+            "{}?limit={}&{}".format(
+                self.url, limit, "sort=created_at,updated_at")
         )
         assert resp.status_code == status.HTTP_200_OK
 
@@ -1133,7 +1150,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
-        assert data == [self.serializer_class(obj).data for obj in self.objects]
+        assert data == [self.serializer_class(
+            obj).data for obj in self.objects]
 
         # Order by metrics
         resp = self.client.get(self.url + "?sort=-metrics.loss")
@@ -1156,7 +1174,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
-        assert data == [self.serializer_class(obj).data for obj in self.objects]
+        assert data == [self.serializer_class(
+            obj).data for obj in self.objects]
 
         # Order by params
         resp = self.client.get(self.url + "?sort=-params.optimizer")
@@ -1181,28 +1200,32 @@ class TestProjectRunsListViewV1(BaseTest):
 
         # Artifacts
         resp = self.client.get(
-            self.url + "?query=in_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=in_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 0
 
         resp = self.client.get(
-            self.url + "?query=artifacts.kind:{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=artifacts.kind:{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 0
 
         resp = self.client.get(
-            self.url + "?query=in_artifact_kind:~{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=in_artifact_kind:~{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects)
 
         resp = self.client.get(
-            self.url + "?query=artifacts.kind:~{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=artifacts.kind:~{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -1211,7 +1234,8 @@ class TestProjectRunsListViewV1(BaseTest):
         # Add meta
         self.objects[0].meta_info = {"has_events": True, "kind": V1RunKind.JOB}
         self.objects[0].save()
-        self.objects[1].meta_info = {"has_tensorboard": True, "kind": V1RunKind.SERVICE}
+        self.objects[1].meta_info = {
+            "has_tensorboard": True, "kind": V1RunKind.SERVICE}
         self.objects[1].save()
 
         resp = self.client.get(self.url + "?query=meta_flags.has_events:1")
@@ -1219,7 +1243,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
 
-        resp = self.client.get(self.url + "?query=meta_flags.has_tensorboard:1")
+        resp = self.client.get(
+            self.url + "?query=meta_flags.has_tensorboard:1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
@@ -1232,7 +1257,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 1
 
         resp = self.client.get(
-            self.url + "?query=meta_info.kind:~{}".format(V1RunKind.SERVICE.value)
+            self.url +
+            "?query=meta_info.kind:~{}".format(V1RunKind.SERVICE.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -1240,7 +1266,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         # Add artifacts
         obj = ArtifactFactory(name="m1", state=self.project.uuid)
-        ArtifactLineage.objects.create(run=self.objects[0], artifact=obj, is_input=True)
+        ArtifactLineage.objects.create(
+            run=self.objects[0], artifact=obj, is_input=True)
         obj = ArtifactFactory(
             name="in1",
             state=self.project.uuid,
@@ -1253,21 +1280,24 @@ class TestProjectRunsListViewV1(BaseTest):
         ArtifactLineage.objects.create(run=self.objects[1], artifact=obj)
 
         resp = self.client.get(
-            self.url + "?query=in_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=in_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
 
         resp = self.client.get(
-            self.url + "?query=in_artifact_kind:~{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=in_artifact_kind:~{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects) - 1
 
         resp = self.client.get(
-            self.url + "?query=out_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
+            self.url +
+            "?query=out_artifact_kind:{}".format(V1ArtifactKind.METRIC.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -1320,7 +1350,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
 
-        resp = self.client.get(self.url + "?query=artifacts.state:{}".format(state))
+        resp = self.client.get(
+            self.url + "?query=artifacts.state:{}".format(state))
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
@@ -1356,7 +1387,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 0
 
         resp = self.client.get(
-            self.url + "?query=upstream.name:{}".format(self.objects[2].uuid.hex)
+            self.url +
+            "?query=upstream.name:{}".format(self.objects[2].uuid.hex)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -1455,7 +1487,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == limit
-        assert data == self.serializer_class(self.queryset[:limit], many=True).data
+        assert data == self.serializer_class(
+            self.queryset[:limit], many=True).data
 
         resp = self.client.get(next_page)
         assert resp.status_code == status.HTTP_200_OK
@@ -1464,7 +1497,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == 1
-        assert data == self.serializer_class(self.queryset[limit:], many=True).data
+        assert data == self.serializer_class(
+            self.queryset[limit:], many=True).data
 
     def test_get_timeline(self):
         resp = self.client.get(self.url + "?mode=timeline")
@@ -1475,7 +1509,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
-        assert data == BookmarkedTimelineRunSerializer(self.queryset, many=True).data
+        assert data == BookmarkedTimelineRunSerializer(
+            self.queryset, many=True).data
 
         # Test other
         resp = self.client.get(self.other_url)
@@ -1495,16 +1530,19 @@ class TestProjectRunsListViewV1(BaseTest):
         resp = self.client.get(self.url + "?mode=timeline")
         assert resp.status_code == status.HTTP_200_OK
         assert (
-            len([1 for obj in resp.data["results"] if obj["bookmarked"] is True]) == 1
+            len([1 for obj in resp.data["results"]
+                if obj["bookmarked"] is True]) == 1
         )
 
     @pytest.mark.filterwarnings("ignore::RuntimeWarning")
     def test_get_timeline_filter(self):  # pylint:disable=too-many-statements
         # Wrong filter raises
-        resp = self.client.get(self.url + "?mode=timeline&query=created_at<2010-01-01")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=created_at<2010-01-01")
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-        resp = self.client.get(self.url + "?mode=timeline&query=created_at:<2010-01-01")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=created_at:<2010-01-01")
         assert resp.status_code == status.HTTP_200_OK
 
         assert resp.data["next"] is None
@@ -1529,7 +1567,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
-        assert data == BookmarkedTimelineRunSerializer(self.queryset, many=True).data
+        assert data == BookmarkedTimelineRunSerializer(
+            self.queryset, many=True).data
 
         # Id
         resp = self.client.get(
@@ -1558,7 +1597,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 1
 
         resp = self.client.get(
-            self.url + "?mode=timeline&query=project.name:{}".format(self.project.name)
+            self.url +
+            "?mode=timeline&query=project.name:{}".format(self.project.name)
         )
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects)
@@ -1689,7 +1729,8 @@ class TestProjectRunsListViewV1(BaseTest):
         ]
 
         # Order by params
-        resp = self.client.get(self.url + "?mode=timeline&sort=-params.optimizer")
+        resp = self.client.get(
+            self.url + "?mode=timeline&sort=-params.optimizer")
         assert resp.status_code == status.HTTP_200_OK
 
         assert resp.data["next"] is None
@@ -1698,7 +1739,8 @@ class TestProjectRunsListViewV1(BaseTest):
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
 
-        resp = self.client.get(self.url + "?mode=timeline&sort=params.optimizer")
+        resp = self.client.get(
+            self.url + "?mode=timeline&sort=params.optimizer")
         assert resp.status_code == status.HTTP_200_OK
 
         assert resp.data["next"] is None
@@ -1751,7 +1793,8 @@ class TestProjectRunsListViewV1(BaseTest):
         # Add meta
         self.objects[0].meta_info = {"has_events": True, "kind": V1RunKind.JOB}
         self.objects[0].save()
-        self.objects[1].meta_info = {"has_tensorboard": True, "kind": V1RunKind.SERVICE}
+        self.objects[1].meta_info = {
+            "has_tensorboard": True, "kind": V1RunKind.SERVICE}
         self.objects[1].save()
 
         resp = self.client.get(
@@ -1786,7 +1829,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         # Add artifacts
         obj = ArtifactFactory(name="m1", state=self.project.uuid)
-        ArtifactLineage.objects.create(run=self.objects[0], artifact=obj, is_input=True)
+        ArtifactLineage.objects.create(
+            run=self.objects[0], artifact=obj, is_input=True)
         obj = ArtifactFactory(
             name="in1",
             state=self.project.uuid,
@@ -1849,17 +1893,20 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 0
 
         # Add commit
-        resp = self.client.get(self.url + "?mode=timeline&query=commit:commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=commit:commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 0
 
-        resp = self.client.get(self.url + "?mode=timeline&query=artifacts.name:commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=artifacts.name:commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 0
 
-        resp = self.client.get(self.url + "?mode=timeline&query=commit:~commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=commit:~commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects)
@@ -1881,7 +1928,8 @@ class TestProjectRunsListViewV1(BaseTest):
             run=self.objects[0], artifact=obj, is_input=False
         )
 
-        resp = self.client.get(self.url + "?mode=timeline&query=commit:commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=commit:commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
@@ -1900,12 +1948,14 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
 
-        resp = self.client.get(self.url + "?mode=timeline&query=artifacts.name:commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=artifacts.name:commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
 
-        resp = self.client.get(self.url + "?mode=timeline&query=commit:~commit1")
+        resp = self.client.get(
+            self.url + "?mode=timeline&query=commit:~commit1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects) - 1
@@ -2013,14 +2063,16 @@ class TestProjectRunsListViewV1(BaseTest):
     def test_get_pipeline_with_graph_objects(self):
         pipeline_run = RunFactory(project=self.project, user=self.user)
         runs = [
-            RunFactory(project=self.project, user=self.user, pipeline=pipeline_run)
+            RunFactory(project=self.project, user=self.user,
+                       pipeline=pipeline_run)
             for _ in range(4)
         ]
         runs[0].upstream_runs.set(runs[2:])
         runs[1].upstream_runs.set(runs[2:])
 
         resp = self.client.get(
-            self.url + "?mode=graph&query=pipeline:{}".format(pipeline_run.uuid)
+            self.url +
+            "?mode=graph&query=pipeline:{}".format(pipeline_run.uuid)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert {
@@ -2030,10 +2082,12 @@ class TestProjectRunsListViewV1(BaseTest):
     @pytest.mark.filterwarnings("ignore::RuntimeWarning")
     def test_get_graph_filter(self):  # pylint:disable=too-many-statements
         # Wrong filter raises
-        resp = self.client.get(self.url + "?mode=graph&query=created_at<2010-01-01")
+        resp = self.client.get(
+            self.url + "?mode=graph&query=created_at<2010-01-01")
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-        resp = self.client.get(self.url + "?mode=graph&query=created_at:<2010-01-01")
+        resp = self.client.get(
+            self.url + "?mode=graph&query=created_at:<2010-01-01")
         assert resp.status_code == status.HTTP_200_OK
 
         assert resp.data["next"] is None
@@ -2058,7 +2112,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
-        self._asset_graph_data(data, GraphRunSerializer(self.queryset, many=True).data)
+        self._asset_graph_data(data, GraphRunSerializer(
+            self.queryset, many=True).data)
 
         # Id
         resp = self.client.get(
@@ -2087,7 +2142,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 1
 
         resp = self.client.get(
-            self.url + "?mode=graph&query=project.name:{}".format(self.project.name)
+            self.url +
+            "?mode=graph&query=project.name:{}".format(self.project.name)
         )
         assert resp.data["next"] is None
         assert resp.data["count"] == len(self.objects)
@@ -2177,7 +2233,8 @@ class TestProjectRunsListViewV1(BaseTest):
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
         self._asset_graph_data(
-            data, [GraphRunSerializer(obj).data for obj in reversed(self.objects)]
+            data, [GraphRunSerializer(
+                obj).data for obj in reversed(self.objects)]
         )
 
         resp = self.client.get(self.url + "?mode=graph&sort=metrics.loss")
@@ -2202,7 +2259,8 @@ class TestProjectRunsListViewV1(BaseTest):
         data = resp.data["results"]
         assert len(data) == self.queryset.count()
         self._asset_graph_data(
-            data, [GraphRunSerializer(obj).data for obj in reversed(self.objects)]
+            data, [GraphRunSerializer(
+                obj).data for obj in reversed(self.objects)]
         )
 
         resp = self.client.get(self.url + "?mode=graph&sort=metrics.loss")
@@ -2266,7 +2324,8 @@ class TestProjectRunsListViewV1(BaseTest):
         }
         self.objects[1].save()
 
-        resp = self.client.get(self.url + "?mode=graph&query=meta_flags.has_events:1")
+        resp = self.client.get(
+            self.url + "?mode=graph&query=meta_flags.has_events:1")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 1
@@ -2279,7 +2338,8 @@ class TestProjectRunsListViewV1(BaseTest):
         assert resp.data["count"] == 1
 
         resp = self.client.get(
-            self.url + "?mode=graph&query=meta_info.kind:{}".format(V1RunKind.JOB.value)
+            self.url +
+            "?mode=graph&query=meta_info.kind:{}".format(V1RunKind.JOB.value)
         )
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
@@ -2295,7 +2355,8 @@ class TestProjectRunsListViewV1(BaseTest):
 
         # Add artifacts
         obj = ArtifactFactory(name="m1", state=self.project.uuid)
-        ArtifactLineage.objects.create(run=self.objects[0], artifact=obj, is_input=True)
+        ArtifactLineage.objects.create(
+            run=self.objects[0], artifact=obj, is_input=True)
         obj = ArtifactFactory(
             name="in1",
             state=self.project.uuid,
@@ -2594,7 +2655,8 @@ class TestProjectRunsSyncViewV1(BaseTest):
         super().setUp()
         self.project = ProjectFactory()
 
-        self.url = "/{}/polyaxon/{}/runs/sync".format(API_V1, self.project.name)
+        self.url = "/{}/polyaxon/{}/runs/sync".format(
+            API_V1, self.project.name)
 
     def test_sync(self):
         xp_count = Run.objects.count()

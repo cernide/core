@@ -3,7 +3,7 @@ from django.db import models
 from core.db.abstracts.diff import DiffModel
 from core.db.abstracts.state import StateModel
 from core.db.defs import Models
-from traceml.artifacts import V1ArtifactKind
+from tracer.artifacts import V1ArtifactKind
 
 
 class BaseArtifact(DiffModel, StateModel):

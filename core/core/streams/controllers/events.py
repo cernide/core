@@ -15,8 +15,8 @@ from polyaxon._fs.async_manager import (
     tar_files,
 )
 from polyaxon._fs.types import FSSystem
-from traceml.artifacts import V1ArtifactKind
-from traceml.events import V1Events, get_event_path, get_resource_path
+from tracer.artifacts import V1ArtifactKind
+from tracer.events import V1Events, get_event_path, get_resource_path
 
 logger = logging.getLogger("core.streams.events")
 
@@ -73,7 +73,8 @@ async def process_operation_event(
                                 n=sample, random_state=0
                             ).sort_index()
                     except Exception as e:
-                        logger.warning("Could not sample event dataframe, error %s", e)
+                        logger.warning(
+                            "Could not sample event dataframe, error %s", e)
                 return {
                     "name": event_name,
                     "kind": event_kind,
@@ -81,7 +82,8 @@ async def process_operation_event(
                 }
             else:
                 logger.warning(
-                    "received an unrecognisable orient value {}.".format(orient)
+                    "received an unrecognisable orient value {}.".format(
+                        orient)
                 )
     return None
 
@@ -96,7 +98,8 @@ async def get_archived_operation_resource(
     check_cache: bool = True,
     sample: Optional[int] = None,
 ) -> Optional[Dict]:
-    subpath = get_resource_path(run_path=run_uuid, kind=event_kind, name=event_name)
+    subpath = get_resource_path(
+        run_path=run_uuid, kind=event_kind, name=event_name)
     event_path = await download_file(
         fs=fs, store_path=store_path, subpath=subpath, check_cache=check_cache
     )
@@ -120,7 +123,8 @@ async def get_archived_operation_event(
     check_cache: bool = True,
     sample: Optional[int] = None,
 ) -> Optional[Dict]:
-    subpath = get_event_path(run_path=run_uuid, kind=event_kind, name=event_name)
+    subpath = get_event_path(
+        run_path=run_uuid, kind=event_kind, name=event_name)
     event_path = await download_file(
         fs=fs, store_path=store_path, subpath=subpath, check_cache=check_cache
     )
@@ -143,7 +147,8 @@ async def get_archived_operation_event_and_assets(
     check_cache: bool = True,
 ) -> List[str]:
     pkg_files = []
-    subpath = get_event_path(run_path=run_uuid, kind=event_kind, name=event_name)
+    subpath = get_event_path(
+        run_path=run_uuid, kind=event_kind, name=event_name)
     event_path = await download_file(
         fs=fs, store_path=store_path, subpath=subpath, check_cache=check_cache
     )
@@ -158,11 +163,13 @@ async def get_archived_operation_event_and_assets(
         to_dict=False,
     )
     if not event:
-        logger.warning("During the packaging of %s, the event download failed.")
+        logger.warning(
+            "During the packaging of %s, the event download failed.")
         return []
     df = event["data"].df
     try:
-        files = df[event_kind].map(lambda f: orjson_loads(f).get("path")).tolist()
+        files = df[event_kind].map(
+            lambda f: orjson_loads(f).get("path")).tolist()
     except Exception as e:
         logger.warning(
             "During the packaging of %s, the event format found was not correct. "
@@ -202,7 +209,8 @@ async def get_archived_operation_events_and_assets(
         )
         pkg_files += event_pkg_files
     return await tar_files(
-        filename="{}.{}.{}".format(run_uuid, event_kind, "-and-".join(event_names)),
+        filename="{}.{}.{}".format(
+            run_uuid, event_kind, "-and-".join(event_names)),
         pkg_files=pkg_files,
         subpath=run_uuid,
     )

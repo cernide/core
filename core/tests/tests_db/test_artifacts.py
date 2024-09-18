@@ -5,7 +5,7 @@ from core.db.factories.runs import RunFactory
 from core.db.factories.users import UserFactory
 from core.db.managers.artifacts import set_artifacts
 from core.db.models.artifacts import Artifact
-from traceml.artifacts import V1ArtifactKind, V1RunArtifact
+from tracer.artifacts import V1ArtifactKind, V1RunArtifact
 
 
 class TestArtifacts(TestCase):
@@ -33,7 +33,8 @@ class TestArtifacts(TestCase):
         )
         set_artifacts(run=self.run, artifacts=[metric1, metric2])
         assert Artifact.objects.count() == 2
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         result1 = results["accuracy"].to_dict()
         # State is generated
         assert result1.pop("state") is not None
@@ -46,18 +47,21 @@ class TestArtifacts(TestCase):
             kind=V1ArtifactKind.METRIC,
             path="accuracy",
             state=state,
-            summary=dict(last_value=0.9, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.9, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         metric2 = V1RunArtifact(
             name="precision",
             kind=V1ArtifactKind.METRIC,
             path="precision",
             state=state,
-            summary=dict(last_value=0.8, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.8, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         set_artifacts(run=self.run, artifacts=[metric1, metric2])
         assert Artifact.objects.count() == 2
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         assert results["accuracy"].to_dict() == metric1.to_dict()
         assert results["precision"].to_dict() == metric2.to_dict()
 
@@ -66,18 +70,21 @@ class TestArtifacts(TestCase):
             kind=V1ArtifactKind.METRIC,
             path="accuracy",
             state=state,
-            summary=dict(last_value=0.77, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.77, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         metric3 = V1RunArtifact(
             name="new",
             kind=V1ArtifactKind.METRIC,
             path="new",
             state=state,
-            summary=dict(last_value=0.8, max_value=0.99, min_value=0.11, max_step=100),
+            summary=dict(last_value=0.8, max_value=0.99,
+                         min_value=0.11, max_step=100),
         )
         set_artifacts(run=self.run, artifacts=[metric1, metric3])
         assert Artifact.objects.count() == 3
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         assert results["accuracy"].to_dict() == metric1.to_dict()
         assert results["precision"].to_dict() == metric2.to_dict()
         assert results["new"].to_dict() == metric3.to_dict()
@@ -101,7 +108,8 @@ class TestArtifacts(TestCase):
         )
         set_artifacts(run=self.run, artifacts=[artifact1, artifact2])
         assert Artifact.objects.count() == 2
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         assert (results["histo"]).to_dict() == artifact1.to_dict()
         assert results["dataframe"].to_dict() == artifact2.to_dict()
 
@@ -121,7 +129,8 @@ class TestArtifacts(TestCase):
         )
         set_artifacts(run=self.run, artifacts=[artifact1, artifact2])
         assert Artifact.objects.count() == 2
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         assert results["histo"].to_dict() == artifact1.to_dict()
         assert results["dataframe"].to_dict() == artifact2.to_dict()
 
@@ -141,7 +150,8 @@ class TestArtifacts(TestCase):
         )
         set_artifacts(run=self.run, artifacts=[artifact1, artifact3])
         assert Artifact.objects.count() == 3
-        results = {r.name: V1RunArtifact.from_model(r) for r in Artifact.objects.all()}
+        results = {r.name: V1RunArtifact.from_model(
+            r) for r in Artifact.objects.all()}
         assert results["histo"].to_dict() == artifact1.to_dict()
         assert results["dataframe"].to_dict() == artifact2.to_dict()
         assert results["audio"].to_dict() == artifact3.to_dict()

@@ -15,7 +15,7 @@ from polyaxon._fs.async_manager import list_files
 from polyaxon._fs.types import FSSystem
 from polyaxon._k8s.logging.async_monitor import query_k8s_operation_logs
 from polyaxon._k8s.manager.async_manager import AsyncK8sManager
-from traceml.logging import V1Log
+from tracer.logging import V1Log
 
 
 async def get_agent_logs_files(

@@ -12,7 +12,7 @@ from django.db.models import Q
 from core.db.abstracts.projects import Owner
 from core.db.abstracts.runs import BaseRun
 from core.db.defs import Models
-from traceml.artifacts import V1ArtifactKind, V1RunArtifact
+from tracer.artifacts import V1ArtifactKind, V1RunArtifact
 
 
 def get_artifacts_by_keys(
@@ -70,7 +70,8 @@ def set_artifacts(run: BaseRun, artifacts: List[V1RunArtifact]):
         run=run, namespace=namespace, artifacts=artifacts
     )
     artifacts_keys = list(artifacts_by_keys.keys())
-    query = reduce(or_, (Q(name=name, state=state) for name, state in artifacts_keys))
+    query = reduce(or_, (Q(name=name, state=state)
+                   for name, state in artifacts_keys))
     if settings.HAS_ORG_MANAGEMENT:
         query = Q(owner=owner) & query
     to_update = Models.Artifact.objects.filter(query)

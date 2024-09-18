@@ -10,8 +10,8 @@ from polyaxon import settings
 from polyaxon._utils.test_utils import set_store
 from polyaxon.api import STREAMS_V1_LOCATION
 from tests.base.case import BaseTest
-from traceml.artifacts import V1ArtifactKind
-from traceml.events import LoggedEventListSpec, V1Event, V1Events
+from tracer.artifacts import V1ArtifactKind
+from tracer.events import LoggedEventListSpec, V1Event, V1Events
 
 
 @pytest.mark.events_mark
@@ -39,7 +39,8 @@ class TestEventsEndpoints(BaseTest):
                 V1Event.make(step=2, text="boo2"),
             ],
         )
-        self.create_kind_events(name="text1", kind=V1ArtifactKind.TEXT, events=text1)
+        self.create_kind_events(
+            name="text1", kind=V1ArtifactKind.TEXT, events=text1)
         text2 = LoggedEventListSpec(
             name="text2",
             kind=V1ArtifactKind.TEXT,
@@ -48,7 +49,8 @@ class TestEventsEndpoints(BaseTest):
                 V1Event.make(step=2, text="boo2"),
             ],
         )
-        self.create_kind_events(name="text2", kind=V1ArtifactKind.TEXT, events=text2)
+        self.create_kind_events(
+            name="text2", kind=V1ArtifactKind.TEXT, events=text2)
         html1 = LoggedEventListSpec(
             name="html1",
             kind=V1ArtifactKind.HTML,
@@ -57,7 +59,8 @@ class TestEventsEndpoints(BaseTest):
                 V1Event.make(step=2, html="boo2"),
             ],
         )
-        self.create_kind_events(name="html1", kind=V1ArtifactKind.HTML, events=html1)
+        self.create_kind_events(
+            name="html1", kind=V1ArtifactKind.HTML, events=html1)
         html2 = LoggedEventListSpec(
             name="htm2",
             kind=V1ArtifactKind.HTML,
@@ -66,7 +69,8 @@ class TestEventsEndpoints(BaseTest):
                 V1Event.make(step=2, html="boo2"),
             ],
         )
-        self.create_kind_events(name="html2", kind=V1ArtifactKind.HTML, events=html2)
+        self.create_kind_events(
+            name="html2", kind=V1ArtifactKind.HTML, events=html2)
 
     def create_kind_events(self, name, kind, events):
         event_kind_path = "{}/{}".format(self.run_events, get_enum_value(kind))
@@ -87,21 +91,25 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/text?names=text1,text2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1,text2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is True
 
         shutil.rmtree(self.run_events)
-        response = self.client.get(self.base_url + "/text?names=text1,text2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1,text2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is True
 
         shutil.rmtree(
-            os.path.join(settings.CLIENT_CONFIG.archives_root, "uuid", "events")
+            os.path.join(settings.CLIENT_CONFIG.archives_root,
+                         "uuid", "events")
         )
-        response = self.client.get(self.base_url + "/text?names=text1,text2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1,text2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
@@ -115,7 +123,8 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/text?names=text1,text2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1,text2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is True
@@ -137,11 +146,13 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/text?names=text1&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is False
-        events1 = V1Events.read(name="text1", kind=V1ArtifactKind.TEXT, data=filepath1)
+        events1 = V1Events.read(
+            name="text1", kind=V1ArtifactKind.TEXT, data=filepath1)
         for res in response.json()["data"]:
             assert isinstance(res["data"], str)
         results = [V1Events.read(**i) for i in response.json()["data"]]
@@ -149,11 +160,13 @@ class TestEventsEndpoints(BaseTest):
         assert results[0].kind == events1.kind
         assert pd.DataFrame.equals(results[0].df, events1.df)
 
-        response = self.client.get(self.base_url + "/text?names=text1,text2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/text?names=text1,text2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is True
-        events2 = V1Events.read(name="text2", kind=V1ArtifactKind.TEXT, data=filepath2)
+        events2 = V1Events.read(
+            name="text2", kind=V1ArtifactKind.TEXT, data=filepath2)
         for res in response.json()["data"]:
             assert isinstance(res["data"], str)
         results = [V1Events.read(**i) for i in response.json()["data"]]
@@ -189,11 +202,13 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/html?names=html1&orient=csv")
+        response = self.client.get(
+            self.base_url + "/html?names=html1&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is False
-        events1 = V1Events.read(name="html1", kind=V1ArtifactKind.HTML, data=filepath1)
+        events1 = V1Events.read(
+            name="html1", kind=V1ArtifactKind.HTML, data=filepath1)
         for res in response.json()["data"]:
             assert isinstance(res["data"], str)
         results = [V1Events.read(**i) for i in response.json()["data"]]
@@ -201,11 +216,13 @@ class TestEventsEndpoints(BaseTest):
         assert results[0].kind == events1.kind
         assert pd.DataFrame.equals(results[0].df, events1.df)
 
-        response = self.client.get(self.base_url + "/html?names=html1,html2&orient=csv")
+        response = self.client.get(
+            self.base_url + "/html?names=html1,html2&orient=csv")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is True
-        events2 = V1Events.read(name="html2", kind=V1ArtifactKind.HTML, data=filepath2)
+        events2 = V1Events.read(
+            name="html2", kind=V1ArtifactKind.HTML, data=filepath2)
         for res in response.json()["data"]:
             assert isinstance(res["data"], str)
         results = [V1Events.read(**i) for i in response.json()["data"]]
@@ -241,7 +258,8 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/text?names=text1&orient=dict")
+        response = self.client.get(
+            self.base_url + "/text?names=text1&orient=dict")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is False
@@ -299,7 +317,8 @@ class TestEventsEndpoints(BaseTest):
         )
         assert os.path.exists(filepath1) is False
         assert os.path.exists(filepath2) is False
-        response = self.client.get(self.base_url + "/html?names=html1&orient=dict")
+        response = self.client.get(
+            self.base_url + "/html?names=html1&orient=dict")
         assert response.status_code == 200
         assert os.path.exists(filepath1) is True
         assert os.path.exists(filepath2) is False
@@ -463,7 +482,8 @@ class TestMultiRunsEventsEndpoints(BaseTest):
         assert os.path.exists(filepath21) is True
         assert os.path.exists(filepath22) is True
 
-        shutil.rmtree(os.path.join(settings.CLIENT_CONFIG.archives_root, "uuid1"))
+        shutil.rmtree(os.path.join(
+            settings.CLIENT_CONFIG.archives_root, "uuid1"))
         response = self.client.get(
             self.base_url + "/metric?names=metric1,metric2&runs=uuid1,uuid2&orient=dict"
         )
@@ -575,7 +595,8 @@ class TestMultiRunsEventsEndpoints(BaseTest):
         results = response.json()["data"]
         assert list(results.keys()) == ["uuid1"]
         assert len(results["uuid1"]) == 1
-        results = [V1Events.read(**i) for i in response.json()["data"]["uuid1"]]
+        results = [V1Events.read(**i)
+                   for i in response.json()["data"]["uuid1"]]
         assert results[0].name == events11.name
         assert results[0].kind == events11.kind
         assert pd.DataFrame.equals(results[0].df, events11.df)
@@ -694,7 +715,8 @@ class TestMultiRunsEventsEndpoints(BaseTest):
         results = response.json()["data"]
         assert list(results.keys()) == ["uuid1"]
         assert len(results["uuid1"]) == 1
-        results = [V1Events.read(**i) for i in response.json()["data"]["uuid1"]]
+        results = [V1Events.read(**i)
+                   for i in response.json()["data"]["uuid1"]]
         assert results[0].name == events11.name
         assert results[0].kind == events11.kind
         assert pd.DataFrame.equals(results[0].df, events11.df)

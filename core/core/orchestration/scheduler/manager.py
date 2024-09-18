@@ -80,7 +80,7 @@ from polyaxon.schemas import (
     V1TriggerPolicy,
     dags,
 )
-from traceml.artifacts import V1ArtifactKind, V1RunArtifact
+from tracer.artifacts import V1ArtifactKind, V1RunArtifact
 
 _logger = logging.getLogger("polyaxon.scheduler")
 
@@ -461,7 +461,8 @@ class SchedulingManager:
         cls, run: Models.Run, pipeline_run_id: Optional[int] = None
     ) -> bool:
         return (
-            not cls._get_upstream_runs(run=run, pipeline_run_id=pipeline_run_id)
+            not cls._get_upstream_runs(
+                run=run, pipeline_run_id=pipeline_run_id)
             .exclude(status__in=LifeCycle.DONE_VALUES)
             .exists()
         )
@@ -481,7 +482,8 @@ class SchedulingManager:
         cls, run: Models.Run, pipeline_run_id: Optional[int] = None
     ) -> bool:
         return (
-            not cls._get_upstream_runs(run=run, pipeline_run_id=pipeline_run_id)
+            not cls._get_upstream_runs(
+                run=run, pipeline_run_id=pipeline_run_id)
             .exclude(status=V1Statuses.FAILED)
             .exists()
         )
@@ -501,7 +503,8 @@ class SchedulingManager:
         cls, run: Models.Run, pipeline_run_id: Optional[int] = None
     ) -> bool:
         return (
-            not cls._get_upstream_runs(run=run, pipeline_run_id=pipeline_run_id)
+            not cls._get_upstream_runs(
+                run=run, pipeline_run_id=pipeline_run_id)
             .exclude(status=V1Statuses.SUCCEEDED)
             .exists()
         )
@@ -564,7 +567,8 @@ class SchedulingManager:
     @classmethod
     def _trigger_downstream(cls, queryset: QuerySet, is_skipped: bool = False):
         for down_run in queryset:
-            op_spec = V1Operation.read(down_run.raw_content)  # TODO: Use construct
+            op_spec = V1Operation.read(
+                down_run.raw_content)  # TODO: Use construct
             if is_skipped and op_spec.skip_on_upstream_skip:
                 condition = V1StatusCondition.get_condition(
                     type=V1Statuses.SKIPPED,
@@ -705,7 +709,8 @@ class SchedulingManager:
                 bracket_iteration = run.meta_info.get(META_BRACKET_ITERATION)
                 additional_filters = ""
                 if iteration is not None:
-                    additional_filters += "meta_values.iteration:{}".format(iteration)
+                    additional_filters += "meta_values.iteration:{}".format(
+                        iteration)
                 if bracket_iteration:
                     additional_filters += ", meta_values.bracket_iteration:{}".format(
                         bracket_iteration
@@ -756,7 +761,8 @@ class SchedulingManager:
                 new_run_status(run=run, condition=condition)
                 return
         cls._capture_message(
-            "Iteration algorithm could not create a tuning operation: {}".format(run.id)
+            "Iteration algorithm could not create a tuning operation: {}".format(
+                run.id)
         )
         condition = V1StatusCondition.get_condition(
             type=V1Statuses.FAILED,
@@ -801,7 +807,8 @@ class SchedulingManager:
         extra_message: Optional[str] = None,
     ):
         run = cls.get_run(
-            run_id=run_id, run=run, prefetch=cls.DEFAULT_PREFETCH + ["controller"]
+            run_id=run_id, run=run, prefetch=cls.DEFAULT_PREFETCH +
+            ["controller"]
         )
         if not run:
             return
@@ -817,7 +824,8 @@ class SchedulingManager:
 
         try:
             compiled_at = now()
-            _, compiled_operation = cls._resolve(run=run, compiled_at=compiled_at)
+            _, compiled_operation = cls._resolve(
+                run=run, compiled_at=compiled_at)
         except PolyaxonCompilerError as e:
             condition = V1StatusCondition.get_condition(
                 type=V1Statuses.FAILED,
@@ -1103,7 +1111,8 @@ class SchedulingManager:
 
     @classmethod
     def runs_hooks(cls, run_id: int, run: Optional[Models.Run] = None):
-        run = cls.get_run(run_id=run_id, run=run, prefetch=cls.DEFAULT_PREFETCH)
+        run = cls.get_run(run_id=run_id, run=run,
+                          prefetch=cls.DEFAULT_PREFETCH)
         if not run:
             return
 
@@ -1168,7 +1177,8 @@ class SchedulingManager:
 
     @classmethod
     def runs_built(cls, run_id: int, run: Optional[Models.Run] = None):
-        run = cls.get_run(run_id=run_id, run=run, prefetch=cls.DEFAULT_PREFETCH)
+        run = cls.get_run(run_id=run_id, run=run,
+                          prefetch=cls.DEFAULT_PREFETCH)
         if not run:
             return
 
@@ -1358,7 +1368,8 @@ class SchedulingManager:
 
     @classmethod
     def runs_check_early_stopping(cls, run_id: int, run: Optional[Models.Run] = None):
-        run = cls.get_run(run_id=run_id, run=run, defer=STATUS_UPDATE_COLUMNS_DEFER)
+        run = cls.get_run(run_id=run_id, run=run,
+                          defer=STATUS_UPDATE_COLUMNS_DEFER)
         if not run:
             return
 
@@ -1370,12 +1381,14 @@ class SchedulingManager:
                 message="Pipeline was early stopped.",
             )
             new_run_status(run=run, condition=condition)
-            pipeline_runs = run.pipeline_runs.exclude(status__in=LifeCycle.DONE_VALUES)
+            pipeline_runs = run.pipeline_runs.exclude(
+                status__in=LifeCycle.DONE_VALUES)
             bulk_new_run_status(pipeline_runs, condition)
 
     @classmethod
     def runs_check_pipeline(cls, run_id: int, run: Optional[Models.Run] = None):
-        run = cls.get_run(run_id=run_id, run=run, defer=STATUS_UPDATE_COLUMNS_DEFER)
+        run = cls.get_run(run_id=run_id, run=run,
+                          defer=STATUS_UPDATE_COLUMNS_DEFER)
         if not run:
             return
 
@@ -1424,7 +1437,8 @@ class SchedulingManager:
                         status="True",
                         reason=reason,
                         message="Pipeline has failed, some operations did not finish successfully.\n"
-                        "Number of failed operations: {}".format(runs_count["failed"]),
+                        "Number of failed operations: {}".format(
+                            runs_count["failed"]),
                     )
                 elif stopped_count > 0 and stopped_count == all_count:
                     condition = V1StatusCondition.get_condition(
@@ -1475,7 +1489,8 @@ class SchedulingManager:
 
     @staticmethod
     def stats_calculation_project(project_id: int):
-        project = Models.Project.all.select_related("latest_stats").get(id=project_id)
+        project = Models.Project.all.select_related(
+            "latest_stats").get(id=project_id)
         current_hour = now().replace(minute=0, second=0, microsecond=0)
 
         run_count = collect_project_run_count_stats(project=project)

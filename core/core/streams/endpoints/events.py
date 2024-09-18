@@ -19,9 +19,9 @@ from core.streams.controllers.events import (
 )
 from core.streams.endpoints.base import UJSONResponse
 from core.streams.endpoints.utils import redirect_file
-from traceml.artifacts import V1ArtifactKind
-from traceml.events import V1Events
-from traceml.processors.importance_processors import calculate_importance_correlation
+from tracer.artifacts import V1ArtifactKind
+from tracer.events import V1Events
+from tracer.processors.importance_processors import calculate_importance_correlation
 
 
 async def _get_multi_run_events(
@@ -42,8 +42,10 @@ async def _get_multi_run_events(
     sample = request.GET.get("sample")
     connection = request.GET.get("connection")
     orient = orient or V1Events.ORIENT_DICT
-    event_names = {e for e in event_names.split(",") if e} if event_names else set([])
-    run_uuids = {e for e in run_uuids.split(",") if e} if run_uuids else set([])
+    event_names = {e for e in event_names.split(
+        ",") if e} if event_names else set([])
+    run_uuids = {e for e in run_uuids.split(
+        ",") if e} if run_uuids else set([])
     events = await get_archived_operations_events(
         fs=await AppFS.get_fs(connection=connection),
         store_path=AppFS.get_fs_root_path(connection=connection),
@@ -134,7 +136,8 @@ async def get_run_events(
     sample = request.GET.get("sample")
     connection = request.GET.get("connection")
     orient = orient or V1Events.ORIENT_DICT
-    event_names = {e for e in event_names.split(",") if e} if event_names else set([])
+    event_names = {e for e in event_names.split(
+        ",") if e} if event_names else set([])
     if pkg_assets:
         return await get_package_event_assets(
             run_uuid=run_uuid,
@@ -172,7 +175,8 @@ async def get_run_resources(
     sample = request.GET.get("sample")
     connection = request.GET.get("connection")
     orient = orient or V1Events.ORIENT_DICT
-    event_names = {e for e in event_names.split(",") if e} if event_names else set([])
+    event_names = {e for e in event_names.split(
+        ",") if e} if event_names else set([])
     events = await get_archived_operation_resources(
         fs=await AppFS.get_fs(connection=connection),
         store_path=AppFS.get_fs_root_path(connection=connection),
@@ -199,7 +203,8 @@ async def get_run_importance_correlation(
     params = data.get("params")
     metrics = data.get("metrics")
     return UJSONResponse(
-        {"data": calculate_importance_correlation(metrics=metrics, params=params)}
+        {"data": calculate_importance_correlation(
+            metrics=metrics, params=params)}
     )
 
 

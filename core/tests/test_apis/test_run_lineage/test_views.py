@@ -20,7 +20,7 @@ from core.db.queries import artifacts as artifacts_queries
 from polyaxon.api import API_V1
 from polyaxon.schemas import ManagedBy
 from tests.base.case import BaseTest
-from traceml.artifacts import V1ArtifactKind, V1RunArtifact
+from tracer.artifacts import V1ArtifactKind, V1RunArtifact
 
 
 @pytest.mark.lineages_mark
@@ -171,12 +171,14 @@ class TestRunArtifactListViewV1(BaseTest):
         assert resp.data["count"] == 0
 
         # Kind
-        resp = self.client.get(self.url + f"?query=kind:{V1ArtifactKind.METRIC.value}")
+        resp = self.client.get(
+            self.url + f"?query=kind:{V1ArtifactKind.METRIC.value}")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 3
 
-        resp = self.client.get(self.url + f"?query=kind:{V1ArtifactKind.HISTOGRAM}")
+        resp = self.client.get(
+            self.url + f"?query=kind:{V1ArtifactKind.HISTOGRAM}")
         assert resp.status_code == status.HTTP_200_OK
         assert resp.data["next"] is None
         assert resp.data["count"] == 0
@@ -190,13 +192,15 @@ class TestRunArtifactListViewV1(BaseTest):
             name="accuracy",
             kind=V1ArtifactKind.METRIC,
             path="accuracy",
-            summary=dict(last_value=0.9, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.9, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         metric2 = V1RunArtifact(
             name="precision",
             kind=V1ArtifactKind.METRIC,
             path="precision",
-            summary=dict(last_value=0.8, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.8, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         data = [metric1.to_dict(), metric2.to_dict()]
         with patch("core.common.workers.send") as workers_send:
@@ -217,13 +221,15 @@ class TestRunArtifactListViewV1(BaseTest):
             name="accuracy",
             kind=V1ArtifactKind.METRIC,
             path="accuracy",
-            summary=dict(last_value=0.9, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.9, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         metric2 = V1RunArtifact(
             name="precision",
             kind=V1ArtifactKind.METRIC,
             path="precision",
-            summary=dict(last_value=0.8, max_value=0.99, min_value=0.1, max_step=100),
+            summary=dict(last_value=0.8, max_value=0.99,
+                         min_value=0.1, max_step=100),
         )
         data = {"artifacts": [metric1.to_dict(), metric2.to_dict()]}
         with patch("core.common.workers.send") as workers_send:
@@ -261,7 +267,8 @@ class TestRunArtifactDetailViewV1(BaseTest):
             raw_content="test",
             managed_by=ManagedBy.AGENT,
         )
-        self.artifact = self.factory_class(name="foo", state=self.project.owner.uuid)
+        self.artifact = self.factory_class(
+            name="foo", state=self.project.owner.uuid)
         self.artifact_lineage = ArtifactLineage.objects.create(
             artifact=self.artifact, run=self.run
         )

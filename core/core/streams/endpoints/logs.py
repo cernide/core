@@ -28,7 +28,7 @@ from polyaxon._fs.async_manager import upload_data
 from polyaxon._k8s.logging.async_monitor import get_op_spec, query_k8s_pod_logs
 from polyaxon._k8s.manager.async_manager import AsyncK8sManager
 from polyaxon._utils.fqn_utils import get_resource_name, get_resource_name_for_kind
-from traceml.logging import V1Logs
+from tracer.logging import V1Logs
 
 logger = logging.getLogger("core.streams.logs")
 
@@ -116,7 +116,8 @@ async def collect_run_logs(
             data={"errors": errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    resource_name = get_resource_name_for_kind(run_uuid=run_uuid, run_kind=run_kind)
+    resource_name = get_resource_name_for_kind(
+        run_uuid=run_uuid, run_kind=run_kind)
     k8s_manager = AsyncK8sManager(
         namespace=namespace,
         in_cluster=settings.CLIENT_CONFIG.in_cluster,

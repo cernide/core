@@ -9,7 +9,7 @@ from django.db.models import Q
 from core.db.defs import Models
 from polyaxon._flow import V1RunEdgeKind
 from polyaxon._sdk.schemas import V1RunEdgesGraph
-from traceml.artifacts import V1RunArtifact, V1RunArtifacts
+from tracer.artifacts import V1RunArtifact, V1RunArtifacts
 
 
 def set_artifacts(view, request, *args, **kwargs):

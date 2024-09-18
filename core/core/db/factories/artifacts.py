@@ -1,7 +1,7 @@
 import factory
 
 from core.db.defs import Models
-from traceml.artifacts import V1ArtifactKind
+from tracer.artifacts import V1ArtifactKind
 
 
 class ArtifactFactory(factory.django.DjangoModelFactory):

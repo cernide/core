@@ -15,7 +15,7 @@ from polyaxon._fs.async_manager import (
     upload_data,
 )
 from polyaxon._fs.types import FSSystem
-from traceml.logging import V1Log, V1Logs
+from tracer.logging import V1Log, V1Logs
 
 
 async def clean_tmp_logs(fs: FSSystem, store_path: str, run_uuid: str):

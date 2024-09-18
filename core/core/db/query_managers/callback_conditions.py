@@ -5,7 +5,7 @@ from clipped.utils.lists import to_list
 
 from polyaxon._schemas.lifecycle import V1ProjectFeature
 from polyaxon.schemas import LiveState, ManagedBy
-from traceml.artifacts import V1ArtifactKind
+from tracer.artifacts import V1ArtifactKind
 
 
 def archived_condition(
