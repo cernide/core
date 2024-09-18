@@ -25,9 +25,9 @@ from core.db.managers.statuses import new_run_status
 from core.db.managers.versions import get_component_version_state
 from core.db.query_managers.run import RunsOfflineFilter
 from core.orchestration import operations
-from hypertune.search_managers.grid_search.manager import GridSearchManager
-from hypertune.search_managers.mapping.manager import MappingManager
-from hypertune.search_managers.random_search.manager import RandomSearchManager
+from hypertuner.search_managers.grid_search.manager import GridSearchManager
+from hypertuner.search_managers.mapping.manager import MappingManager
+from hypertuner.search_managers.random_search.manager import RandomSearchManager
 from polyaxon._auxiliaries import V1PolyaxonSidecarContainer
 from polyaxon._compiler import resolver
 from polyaxon._compiler.lineage import collect_lineage_artifacts_path
@@ -211,10 +211,12 @@ class SchedulingResolver(resolver.BaseResolver):
                     f"Run {run.name} request access to runs outside of the current project."
                 )
             # We check the edge that require updating/creating (handles resume use case)
-            run_edges_by_runs = {(r.upstream_id, r.downstream_id): r for r in run_edges}
+            run_edges_by_runs = {
+                (r.upstream_id, r.downstream_id): r for r in run_edges}
             run_edges_keys = list(run_edges_by_runs.keys())
             query = reduce(
-                or_, (Q(upstream_id=k[0], downstream_id=k[1]) for k in run_edges_keys)
+                or_, (Q(upstream_id=k[0], downstream_id=k[1])
+                      for k in run_edges_keys)
             )
             to_update = Models.RunEdge.objects.filter(query).only(
                 "id",
@@ -323,7 +325,8 @@ class SchedulingResolver(resolver.BaseResolver):
                 return e_inputs[entity_value]
 
         def from_artifacts():
-            outputs_subpath = ctx_paths.CONTEXTS_OUTPUTS_SUBPATH_FORMAT.format(uuid)
+            outputs_subpath = ctx_paths.CONTEXTS_OUTPUTS_SUBPATH_FORMAT.format(
+                uuid)
             if not entity_value:
                 return dict(
                     {ctx_keys.BASE: uuid, ctx_sections.OUTPUTS: outputs_subpath},
@@ -399,7 +402,8 @@ class SchedulingResolver(resolver.BaseResolver):
                         edge_v=edge_v,
                         inputs=edge_io.inputs,
                         outputs=edge_io.outputs,
-                        artifacts={a.name: a.path for a in edge_io.artifacts.all()},
+                        artifacts={
+                            a.name: a.path for a in edge_io.artifacts.all()},
                         owner=owner,
                         project_name=project_name,
                         uuid=edge_io.uuid.hex,
@@ -460,22 +464,26 @@ class SchedulingResolver(resolver.BaseResolver):
                 limit = RunsOfflineFilter.positive_int(
                     j.limit or 5000, strict=True, cutoff=5000
                 )
-                offset = RunsOfflineFilter.positive_int(j.offset or 0, strict=False)
+                offset = RunsOfflineFilter.positive_int(
+                    j.offset or 0, strict=False)
             except (ValueError, TypeError):
                 raise PolyaxonCompilerError(
                     "Received a wrong join (limit/offset) specification. "
                     "Join: {}.".format(join.to_dict())
                 )
-            queryset = Models.Run.objects.filter(project_id=self.run.project_id)
+            queryset = Models.Run.objects.filter(
+                project_id=self.run.project_id)
             try:
-                queryset = offline_filter.filter_join(queryset=queryset, join=j)
+                queryset = offline_filter.filter_join(
+                    queryset=queryset, join=j)
             except PQLException as e:
                 raise PolyaxonCompilerError(
                     "Received a wrong join specification. "
                     "Join: {}. Error: {}".format(join.to_dict(), e)
                 )
 
-            queryset = self._get_edge_queryset(queryset)[offset : offset + limit]
+            queryset = self._get_edge_queryset(
+                queryset)[offset: offset + limit]
             for run_values in queryset:
                 if run_values.id not in edge_values_by_ids:
                     edge_values_by_ids[run_values.id] = {}
@@ -485,7 +493,8 @@ class SchedulingResolver(resolver.BaseResolver):
                         edge_v=edge_v,
                         inputs=run_values.inputs,
                         outputs=run_values.outputs,
-                        artifacts={a.name: a.path for a in run_values.artifacts.all()},
+                        artifacts={
+                            a.name: a.path for a in run_values.artifacts.all()},
                         owner=owner,
                         project_name=project_name,
                         uuid=run_values.uuid.hex,
@@ -502,7 +511,8 @@ class SchedulingResolver(resolver.BaseResolver):
                     if param_value:
                         if is_value_artifacts:
                             if edge_k not in param_values:
-                                param_values[edge_k] = {"files": [], "dirs": []}
+                                param_values[edge_k] = {
+                                    "files": [], "dirs": []}
                             param_values[edge_k] = {
                                 "files": param_values[edge_k]["files"]
                                 + param_value.get("files", []),
@@ -693,7 +703,8 @@ class SchedulingResolver(resolver.BaseResolver):
         if self.run.meta_info and META_UPLOAD_ARTIFACTS in self.run.meta_info:
             artifacts_path = self.run.meta_info[META_UPLOAD_ARTIFACTS]
             if artifacts_path:
-                upload_artifact = collect_lineage_artifacts_path(artifacts_path)
+                upload_artifact = collect_lineage_artifacts_path(
+                    artifacts_path)
                 self.artifacts.append(upload_artifact)
         if self.artifacts:
             set_artifacts(self.run, self.artifacts)
@@ -783,9 +794,11 @@ class SchedulingResolver(resolver.BaseResolver):
 
         def update_pipeline_params():
             # Resolve pipeline params
-            pipeline_params = ops_params.get_dag_params_by_names(params=op_spec.params)
+            pipeline_params = ops_params.get_dag_params_by_names(
+                params=op_spec.params)
             if pipeline_params:
-                pipeline_inputs = {i.name: i for i in (compiled_operation.inputs or {})}
+                pipeline_inputs = {i.name: i for i in (
+                    compiled_operation.inputs or {})}
                 pipeline_contexts = {
                     i.name: i for i in (compiled_operation.contexts or {})
                 }
@@ -947,7 +960,8 @@ class SchedulingResolver(resolver.BaseResolver):
                 "environment"
             ] = run_config.environment.to_dict()
         if compiled_operation.termination:
-            pipeline_override["termination"] = compiled_operation.termination.to_dict()
+            pipeline_override["termination"] = compiled_operation.termination.to_dict(
+            )
         if compiled_operation.plugins:
             pipeline_override["plugins"] = compiled_operation.plugins.to_dict()
         if compiled_operation.queue:
@@ -1199,7 +1213,8 @@ class SchedulingResolver(resolver.BaseResolver):
             component_state=run.component_state,
             meta_info=meta_info,
         ).instance
-        cls._set_pipeline_run_pending_logic(current_run=schedule_run, parent_run=run)
+        cls._set_pipeline_run_pending_logic(
+            current_run=schedule_run, parent_run=run)
         # Create batch runs to avoid sending any signal yet
         Models.Run.objects.bulk_create([schedule_run])
         return True
@@ -1242,7 +1257,8 @@ class SchedulingResolver(resolver.BaseResolver):
             # We make sure that the component state resolves to the correct runs' state
             # Calculate this value once
             if not component_state:
-                component_state = get_component_version_state(op_spec.component)
+                component_state = get_component_version_state(
+                    op_spec.component)
             op_run = operations.init_run(
                 project_id=run.project_id,
                 user_id=run.user_id,
@@ -1262,14 +1278,16 @@ class SchedulingResolver(resolver.BaseResolver):
             op_run.uuid = uuid.uuid4().hex
             op_run.created_at = date_now
             op_run.updated_at = date_now
-            cls._set_pipeline_run_pending_logic(current_run=op_run, parent_run=run)
+            cls._set_pipeline_run_pending_logic(
+                current_run=op_run, parent_run=run)
             yield op_run
 
     @classmethod
     def _create_mapping_matrix(
         cls, run: BaseRun, compiled_operation: V1CompiledOperation
     ):
-        suggestions = MappingManager(compiled_operation.matrix).get_suggestions()
+        suggestions = MappingManager(
+            compiled_operation.matrix).get_suggestions()
         runs = cls._get_runs_from_ops(
             run=run, compiled_operation=compiled_operation, suggestions=suggestions
         )
@@ -1278,7 +1296,8 @@ class SchedulingResolver(resolver.BaseResolver):
 
     @classmethod
     def _create_grid_matrix(cls, run: BaseRun, compiled_operation: V1CompiledOperation):
-        suggestions = GridSearchManager(compiled_operation.matrix).get_suggestions()
+        suggestions = GridSearchManager(
+            compiled_operation.matrix).get_suggestions()
         runs = cls._get_runs_from_ops(
             run=run, compiled_operation=compiled_operation, suggestions=suggestions
         )
@@ -1289,7 +1308,8 @@ class SchedulingResolver(resolver.BaseResolver):
     def _create_random_matrix(
         cls, run: BaseRun, compiled_operation: V1CompiledOperation
     ):
-        suggestions = RandomSearchManager(compiled_operation.matrix).get_suggestions()
+        suggestions = RandomSearchManager(
+            compiled_operation.matrix).get_suggestions()
         runs = cls._get_runs_from_ops(
             run=run, compiled_operation=compiled_operation, suggestions=suggestions
         )
@@ -1301,11 +1321,14 @@ class SchedulingResolver(resolver.BaseResolver):
         cls, run: BaseRun, compiled_operation: V1CompiledOperation
     ) -> None:
         if compiled_operation.has_random_search_matrix:
-            cls._create_random_matrix(run=run, compiled_operation=compiled_operation)
+            cls._create_random_matrix(
+                run=run, compiled_operation=compiled_operation)
         elif compiled_operation.has_grid_search_matrix:
-            cls._create_grid_matrix(run=run, compiled_operation=compiled_operation)
+            cls._create_grid_matrix(
+                run=run, compiled_operation=compiled_operation)
         elif compiled_operation.has_mapping_matrix:
-            cls._create_mapping_matrix(run=run, compiled_operation=compiled_operation)
+            cls._create_mapping_matrix(
+                run=run, compiled_operation=compiled_operation)
 
     @staticmethod
     def _get_pipeline_join(
@@ -1399,7 +1422,8 @@ class SchedulingResolver(resolver.BaseResolver):
             run.original_id = None
             run.pending = None
             run.save(
-                update_fields=["original_id", "cloning_kind", "updated_at", "pending"]
+                update_fields=["original_id",
+                               "cloning_kind", "updated_at", "pending"]
             )
             return False
         if compiled_operation.cache and compiled_operation.cache.disable:
@@ -1489,7 +1513,8 @@ class SchedulingResolver(resolver.BaseResolver):
         else:
             run.pending = V1RunPending.CACHE
             run.save(
-                update_fields=["original_id", "cloning_kind", "updated_at", "pending"]
+                update_fields=["original_id",
+                               "cloning_kind", "updated_at", "pending"]
             )
         return True
 
@@ -1664,7 +1689,8 @@ class SchedulingResolver(resolver.BaseResolver):
         init = []
         connections = set([])
         for r in refs:
-            connection_name = r.connection.name if getattr(r, "connection_id") else None
+            connection_name = r.connection.name if getattr(
+                r, "connection_id") else None
             if connection_name:
                 connections.add(connection_name)
             paths = get_run_lineage_paths(
